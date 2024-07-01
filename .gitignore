@@ -2,7 +2,10 @@
 /dist
 /node_modules
 
+.env
+
 # Logs
+
 logs
 *.log
 npm-debug.log*

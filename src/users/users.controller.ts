@@ -22,7 +22,7 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, UserGuard)
   @Get(':username')
   findOne(@Param('username') username: string) {
     return this.usersService.findOne(username);

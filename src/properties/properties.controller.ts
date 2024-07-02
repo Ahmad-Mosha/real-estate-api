@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -40,12 +41,20 @@ export class PropertiesController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.AGENT)
   async update(
     @Param('id') id: number,
     @Body() property: UpdatePropertyDto,
     @GetUser() user: any,
   ) {
     return this.propertyService.update(id, property, user);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.AGENT)
+  async delete(@Param('id') id: number, @GetUser() user: any) {
+    return this.propertyService.delete(id, user);
   }
 }

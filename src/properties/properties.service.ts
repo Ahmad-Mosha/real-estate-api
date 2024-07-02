@@ -42,4 +42,16 @@ export class PropertiesService {
 
     return this.propertyRepository.save({ ...propertyToUpdate, ...property });
   }
+
+  async delete(id: number, user: User) {
+    const propertyToDelete = await this.propertyRepository.findOne({
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!propertyToDelete) {
+      throw new NotFoundException('Property not found');
+    }
+
+    return this.propertyRepository.remove(propertyToDelete);
+  }
 }

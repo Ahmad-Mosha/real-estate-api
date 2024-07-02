@@ -18,6 +18,8 @@ export class PropertiesService {
     newProperty.title = property.title;
     newProperty.description = property.description;
     newProperty.price = property.price;
+    newProperty.no_of_baths = property.no_of_baths;
+    newProperty.no_of_beds = property.no_of_beds;
     newProperty.location = property.location;
     newProperty.user = user;
     return this.propertyRepository.save(newProperty);

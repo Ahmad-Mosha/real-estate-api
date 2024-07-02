@@ -20,4 +20,10 @@ export class Property {
 
   @ManyToOne(() => User, (user) => user.properties)
   user: User;
+
+  @Column()
+  no_of_baths: number;
+
+  @Column()
+  no_of_beds: number;
 }

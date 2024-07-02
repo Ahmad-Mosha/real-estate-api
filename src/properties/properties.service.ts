@@ -33,6 +33,10 @@ export class PropertiesService {
     return await this.propertyRepository.findOne({ where: { id } });
   }
 
+  async findUserProperties(user: User): Promise<Property[]> {
+    return this.propertyRepository.find({ where: { user: { id: user.id } } });
+  }
+
   async update(id: number, property: UpdatePropertyDto, user: User) {
     const propertyToUpdate = await this.propertyRepository.findOne({
       where: { id, user: { id: user.id } },

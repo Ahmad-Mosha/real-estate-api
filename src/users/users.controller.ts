@@ -10,6 +10,7 @@ import {
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { UserGuard } from 'src/auth/guards/ownership.guard';
 
 @Controller('users')
 export class UsersController {
@@ -33,13 +34,13 @@ export class UsersController {
     return this.usersService.findOneById(id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, UserGuard)
   @Patch(':id')
   update(@Param('id') id: number, @Body() payload: UpdateUserDto) {
     return this.usersService.update(id, payload);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, UserGuard)
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.usersService.remove(id);

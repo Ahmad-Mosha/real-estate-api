@@ -1,20 +1,15 @@
-import {
-  IsNotEmpty,
-  IsString,
-  Matches,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { IsOptional } from '@nestjs/class-validator';
+import { IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 export class UpdateUserDto {
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(4)
   @MaxLength(20)
   username: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @Matches(/^(?=.*[a-z])(?=.*[0-9])(?=.{8,})/, {
     message:
       'Password must be at least 8 characters long 1 lowercase letter, and 1 number',

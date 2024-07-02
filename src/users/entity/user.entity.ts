@@ -1,11 +1,13 @@
 // user.entity.ts
 import { Role } from 'src/common/enums/roles.enum';
+import { Property } from 'src/properties/entity/propety.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -18,6 +20,9 @@ export class User {
 
   @Column()
   password: string;
+
+  @OneToMany(() => Property, (property) => property.user)
+  properties: Property[];
 
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   roles: Role;

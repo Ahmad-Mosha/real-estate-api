@@ -12,6 +12,15 @@ export class FavoritesService {
   ) {}
 
   async create(propertyId: string, user: User): Promise<Favorite> {
+    const favoriteExists = await this.favoriteRepository.findOne({
+      where: { user: { id: user.id } },
+      relations: ['propertyId'],
+    });
+
+    if (favoriteExists) {
+      throw new NotFoundException('Favorite already exists');
+    }
+
     const favorite = new Favorite();
     favorite.user = user;
     favorite.propertyId = propertyId;

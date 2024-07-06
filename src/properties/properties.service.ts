@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { User } from 'src/users/entity/user.entity';
 import { UpdatePropertyDto } from './dto/update-property.dto';
+import { SearchPropertyDto } from './dto/search-property.dto';
+import { FilterPropertyDto } from './dto/filter-property.dto';
 
 @Injectable()
 export class PropertiesService {
@@ -18,6 +20,8 @@ export class PropertiesService {
     newProperty.title = property.title;
     newProperty.description = property.description;
     newProperty.price = property.price;
+    newProperty.no_of_baths = property.no_of_baths;
+    newProperty.no_of_beds = property.no_of_beds;
     newProperty.location = property.location;
     newProperty.user = user;
     return this.propertyRepository.save(newProperty);
@@ -27,11 +31,15 @@ export class PropertiesService {
     return this.propertyRepository.find();
   }
 
-  async findOne(id: number): Promise<Property> {
+  async findOne(id: string): Promise<Property> {
     return await this.propertyRepository.findOne({ where: { id } });
   }
 
-  async update(id: number, property: UpdatePropertyDto, user: User) {
+  async findUserProperties(user: User): Promise<Property[]> {
+    return this.propertyRepository.find({ where: { user: { id: user.id } } });
+  }
+
+  async update(id: string, property: UpdatePropertyDto, user: User) {
     const propertyToUpdate = await this.propertyRepository.findOne({
       where: { id, user: { id: user.id } },
     });
@@ -43,7 +51,7 @@ export class PropertiesService {
     return this.propertyRepository.save({ ...propertyToUpdate, ...property });
   }
 
-  async delete(id: number, user: User) {
+  async delete(id: string, user: User) {
     const propertyToDelete = await this.propertyRepository.findOne({
       where: { id, user: { id: user.id } },
     });
@@ -53,5 +61,53 @@ export class PropertiesService {
     }
 
     return this.propertyRepository.remove(propertyToDelete);
+  }
+
+  async filterProperty(
+    filterPropertyDto: FilterPropertyDto,
+  ): Promise<Property[]> {
+    const { baths, beds, price } = filterPropertyDto;
+    const query = this.propertyRepository.createQueryBuilder('property');
+
+    if (baths) {
+      query.andWhere('property.no_of_baths = :baths', { baths });
+    }
+    if (beds) {
+      query.andWhere('property.no_of_beds = :beds', { beds });
+    }
+    if (price) {
+      query.andWhere('property.price <= :price', { price });
+    }
+
+    return query.getMany();
+  }
+
+  async searchProperty(
+    searchPropertyDto: SearchPropertyDto,
+  ): Promise<Property[]> {
+    const { title, location } = searchPropertyDto;
+    const query = this.propertyRepository.createQueryBuilder('property');
+
+    // Dynamically add conditions based on provided DTO
+    if (title) {
+      query.andWhere('LOWER(property.title) LIKE LOWER(:title)', {
+        title: `%${title}%`,
+      });
+    }
+    if (location) {
+      query.andWhere('LOWER(property.location) LIKE LOWER(:location)', {
+        location: `%${location}%`,
+      });
+    }
+
+    try {
+      const properties = await query.getMany();
+      return properties;
+    } catch (error) {
+      // Log the error for debugging purposes
+      console.error('Failed to search properties:', error);
+      // Consider throwing a more specific error or handling it as per your application's error handling strategy
+      throw new Error('Failed to execute property search');
+    }
   }
 }

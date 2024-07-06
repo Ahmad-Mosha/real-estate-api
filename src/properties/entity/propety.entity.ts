@@ -4,7 +4,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 @Entity()
 export class Property {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column()
   title: string;
@@ -20,4 +20,10 @@ export class Property {
 
   @ManyToOne(() => User, (user) => user.properties)
   user: User;
+
+  @Column()
+  no_of_baths: number;
+
+  @Column()
+  no_of_beds: number;
 }

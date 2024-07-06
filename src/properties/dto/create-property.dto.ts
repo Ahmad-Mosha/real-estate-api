@@ -12,4 +12,10 @@ export class CreatePropertyDto {
 
   @IsString()
   location: string;
+
+  @IsNumber()
+  no_of_baths: number;
+
+  @IsNumber()
+  no_of_beds: number;
 }

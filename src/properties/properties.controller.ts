@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { PropertiesService } from './properties.service';
@@ -16,6 +17,9 @@ import { Role } from 'src/common/enums/roles.enum';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UpdatePropertyDto } from './dto/update-property.dto';
+import { SearchPropertyDto } from './dto/search-property.dto';
+import { Property } from './entity/propety.entity';
+import { FilterPropertyDto } from './dto/filter-property.dto';
 
 @Controller('properties')
 export class PropertiesController {
@@ -28,6 +32,21 @@ export class PropertiesController {
     return this.propertyService.create(property, user);
   }
 
+  @Get('search')
+  searchProperty(
+    @Query() searchPropertyDto: SearchPropertyDto,
+  ): Promise<Property[]> {
+    console.log('searchPropertyDto:', searchPropertyDto);
+    return this.propertyService.searchProperty(searchPropertyDto);
+  }
+
+  @Get('filter')
+  filterProperty(
+    @Query() filterPropertyDto: FilterPropertyDto,
+  ): Promise<Property[]> {
+    return this.propertyService.filterProperty(filterPropertyDto);
+  }
+
   @Get('all')
   @UseGuards(JwtAuthGuard)
   async findAll() {
@@ -36,15 +55,22 @@ export class PropertiesController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
-  async findOne(@Param('id') id: number) {
+  async findOne(@Param('id') id: string) {
     return this.propertyService.findOne(id);
+  }
+
+  @Get('user/properties')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.AGENT)
+  async findUserProperties(@GetUser() user: any) {
+    return this.propertyService.findUserProperties(user);
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.AGENT)
   async update(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Body() property: UpdatePropertyDto,
     @GetUser() user: any,
   ) {
@@ -54,7 +80,7 @@ export class PropertiesController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.AGENT)
-  async delete(@Param('id') id: number, @GetUser() user: any) {
+  async delete(@Param('id') id: string, @GetUser() user: any) {
     return this.propertyService.delete(id, user);
   }
 }

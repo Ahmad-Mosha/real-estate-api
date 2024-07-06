@@ -32,6 +32,21 @@ export class PropertiesController {
     return this.propertyService.create(property, user);
   }
 
+  @Get('search')
+  searchProperty(
+    @Query() searchPropertyDto: SearchPropertyDto,
+  ): Promise<Property[]> {
+    console.log('searchPropertyDto:', searchPropertyDto);
+    return this.propertyService.searchProperty(searchPropertyDto);
+  }
+
+  @Get('filter')
+  filterProperty(
+    @Query() filterPropertyDto: FilterPropertyDto,
+  ): Promise<Property[]> {
+    return this.propertyService.filterProperty(filterPropertyDto);
+  }
+
   @Get('all')
   @UseGuards(JwtAuthGuard)
   async findAll() {
@@ -51,19 +66,6 @@ export class PropertiesController {
     return this.propertyService.findUserProperties(user);
   }
 
-  @Get('filter')
-  filterProperty(
-    @Query() filterPropertyDto: FilterPropertyDto,
-  ): Promise<Property[]> {
-    return this.propertyService.filterProperty(filterPropertyDto);
-  }
-
-  @Get('search')
-  searchProperty(
-    @Query() searchPropertyDto: SearchPropertyDto,
-  ): Promise<Property[]> {
-    return this.propertyService.searchProperty(searchPropertyDto);
-  }
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.AGENT)

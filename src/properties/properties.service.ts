@@ -88,6 +88,7 @@ export class PropertiesService {
     const { title, location } = searchPropertyDto;
     const query = this.propertyRepository.createQueryBuilder('property');
 
+    // Dynamically add conditions based on provided DTO
     if (title) {
       query.andWhere('LOWER(property.title) LIKE LOWER(:title)', {
         title: `%${title}%`,
@@ -99,6 +100,14 @@ export class PropertiesService {
       });
     }
 
-    return query.getMany();
+    try {
+      const properties = await query.getMany();
+      return properties;
+    } catch (error) {
+      // Log the error for debugging purposes
+      console.error('Failed to search properties:', error);
+      // Consider throwing a more specific error or handling it as per your application's error handling strategy
+      throw new Error('Failed to execute property search');
+    }
   }
 }

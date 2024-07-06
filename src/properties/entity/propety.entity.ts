@@ -1,5 +1,12 @@
+import { Favorite } from 'src/favorites/entity/favorite.entity';
 import { User } from 'src/users/entity/user.entity';
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 
 @Entity()
 export class Property {
@@ -20,6 +27,9 @@ export class Property {
 
   @ManyToOne(() => User, (user) => user.properties)
   user: User;
+
+  @OneToMany(() => Favorite, (favorite) => favorite.user)
+  favorites: Favorite[];
 
   @Column()
   no_of_baths: number;

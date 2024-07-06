@@ -1,5 +1,6 @@
 // user.entity.ts
 import { Role } from 'src/common/enums/roles.enum';
+import { Favorite } from 'src/favorites/entity/favorite.entity';
 import { Property } from 'src/properties/entity/propety.entity';
 import {
   Entity,
@@ -23,6 +24,9 @@ export class User {
 
   @OneToMany(() => Property, (property) => property.user)
   properties: Property[];
+
+  @OneToMany(() => Favorite, (favorite) => favorite.user)
+  favorites: Favorite[];
 
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   roles: Role;

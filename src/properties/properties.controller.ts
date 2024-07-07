@@ -91,12 +91,24 @@ export class PropertiesController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.AGENT)
+  @UseInterceptors(FileInterceptor('image'))
   async update(
     @Param('id') id: string,
-    @Body() property: UpdatePropertyDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 2 }),
+          new FileTypeValidator({
+            fileType: /image\/(png|jpeg|jpg)/,
+          }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+    @Body() updatePropertyDto: UpdatePropertyDto,
     @GetUser() user: any,
   ) {
-    return this.propertyService.update(id, property, user);
+    return this.propertyService.update(id, updatePropertyDto, user, file);
   }
 
   @Delete(':id')

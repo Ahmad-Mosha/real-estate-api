@@ -52,7 +52,13 @@ export class PropertiesService {
     return this.propertyRepository.find({ where: { user: { id: user.id } } });
   }
 
-  async update(id: string, property: UpdatePropertyDto, user: User) {
+  // implement the update method with image upload
+  async update(
+    id: string,
+    updatePropertyDto: UpdatePropertyDto,
+    user: User,
+    file: Express.Multer.File,
+  ): Promise<Property> {
     const propertyToUpdate = await this.propertyRepository.findOne({
       where: { id, user: { id: user.id } },
     });
@@ -61,7 +67,20 @@ export class PropertiesService {
       throw new NotFoundException('Property not found');
     }
 
-    return this.propertyRepository.save({ ...propertyToUpdate, ...property });
+    propertyToUpdate.title = updatePropertyDto.title;
+    propertyToUpdate.description = updatePropertyDto.description;
+    propertyToUpdate.price = updatePropertyDto.price;
+    propertyToUpdate.no_of_baths = updatePropertyDto.no_of_baths;
+    propertyToUpdate.no_of_beds = updatePropertyDto.no_of_beds;
+    propertyToUpdate.location = updatePropertyDto.location;
+
+    if (file) {
+      const fileName = `${Date.now()}-${file.originalname}`;
+      await this.s3Service.uploadFile(fileName, file.buffer);
+      propertyToUpdate.imageUrl = `https://mosha-bucket.s3.amazonaws.com/${fileName}`;
+    }
+
+    return this.propertyRepository.save(propertyToUpdate);
   }
 
   async delete(id: string, user: User) {

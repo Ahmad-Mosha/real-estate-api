@@ -25,7 +25,6 @@ export class S3Controller {
     )
     file: Express.Multer.File,
   ) {
-    console.log(file);
     await this.s3Service.uploadFile(file.originalname, file.buffer);
   }
 }

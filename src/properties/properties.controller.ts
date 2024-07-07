@@ -2,8 +2,11 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Patch,
   Post,
   Query,
@@ -34,11 +37,20 @@ export class PropertiesController {
   @Roles(Role.AGENT)
   @UseInterceptors(FileInterceptor('image'))
   async create(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 2 }),
+          new FileTypeValidator({
+            fileType: /image\/(png|jpeg|jpg)/,
+          }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
     @Body() createPropertyDto: CreatePropertyDto,
     @GetUser() user: User,
   ) {
-    console.log(file);
     return this.propertyService.create(createPropertyDto, user, file);
   }
 

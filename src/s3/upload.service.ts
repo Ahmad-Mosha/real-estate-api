@@ -7,7 +7,7 @@ import {
 } from '@aws-sdk/client-s3';
 
 @Injectable()
-export class UploadService {
+export class S3Service {
   private readonly s3Client: S3Client;
 
   constructor(private configService: ConfigService) {

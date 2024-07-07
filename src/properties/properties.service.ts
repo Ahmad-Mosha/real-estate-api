@@ -7,14 +7,14 @@ import { User } from 'src/users/entity/user.entity';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { SearchPropertyDto } from './dto/search-property.dto';
 import { FilterPropertyDto } from './dto/filter-property.dto';
-import { UploadService } from 'src/upload/upload.service';
+import { S3Service } from 'src/s3/upload.service';
 
 @Injectable()
 export class PropertiesService {
   constructor(
     @InjectRepository(Property)
     private readonly propertyRepository: Repository<Property>,
-    private uploadService: UploadService,
+    private s3Service: S3Service,
   ) {}
 
   async create(
@@ -33,7 +33,7 @@ export class PropertiesService {
 
     if (file) {
       const fileName = `${Date.now()}-${file.originalname}`;
-      await this.uploadService.uploadFile(fileName, file.buffer);
+      await this.s3Service.uploadFile(fileName, file.buffer);
       newProperty.imageUrl = `https://mosha-bucket.s3.amazonaws.com/${fileName}`;
     }
 

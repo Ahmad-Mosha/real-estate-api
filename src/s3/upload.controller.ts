@@ -6,11 +6,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UploadService } from './upload.service';
+import { S3Service } from './upload.service';
 
 @Controller('upload')
-export class UploadController {
-  constructor(private readonly uploadService: UploadService) {}
+export class S3Controller {
+  constructor(private readonly s3Service: S3Service) {}
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
@@ -26,6 +26,6 @@ export class UploadController {
     file: Express.Multer.File,
   ) {
     console.log(file);
-    await this.uploadService.uploadFile(file.originalname, file.buffer);
+    await this.s3Service.uploadFile(file.originalname, file.buffer);
   }
 }

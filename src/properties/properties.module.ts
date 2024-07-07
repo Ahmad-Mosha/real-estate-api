@@ -4,9 +4,10 @@ import { PropertiesController } from './properties.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Property } from './entity/propety.entity';
 import { UsersModule } from 'src/users/users.module';
+import { UploadModule } from 'src/upload/upload.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Property]), UsersModule],
+  imports: [TypeOrmModule.forFeature([Property]), UsersModule, UploadModule],
   providers: [PropertiesService],
   controllers: [PropertiesController],
 })

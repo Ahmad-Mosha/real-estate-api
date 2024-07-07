@@ -1,22 +1,41 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from '@aws-sdk/client-s3';
 
 @Injectable()
 export class UploadService {
-  private readonly s3Client = new S3Client({
-    region: this.configSerive.getOrThrow('AWS_REGION'),
-  });
+  private readonly s3Client: S3Client;
 
-  constructor(private configSerive: ConfigService) {}
+  constructor(private configService: ConfigService) {
+    this.s3Client = new S3Client({
+      region: process.env.AWS_REGION,
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      },
+    });
+  }
 
   async uploadFile(fileName: string, file: Buffer) {
-    await this.s3Client.send(
-      new PutObjectCommand({
-        Bucket: 'mosha-bucket',
-        Key: fileName,
-        Body: file,
-      }),
-    );
+    const command = new PutObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileName,
+      Body: file,
+    });
+
+    await this.s3Client.send(command);
+  }
+
+  async deleteFile(fileName: string) {
+    const command = new DeleteObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileName,
+    });
+
+    await this.s3Client.send(command);
   }
 }

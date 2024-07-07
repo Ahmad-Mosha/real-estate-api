@@ -7,15 +7,21 @@ import { User } from 'src/users/entity/user.entity';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { SearchPropertyDto } from './dto/search-property.dto';
 import { FilterPropertyDto } from './dto/filter-property.dto';
+import { UploadService } from 'src/upload/upload.service';
 
 @Injectable()
 export class PropertiesService {
   constructor(
     @InjectRepository(Property)
     private readonly propertyRepository: Repository<Property>,
+    private uploadService: UploadService,
   ) {}
 
-  async create(property: CreatePropertyDto, user: User): Promise<Property> {
+  async create(
+    property: CreatePropertyDto,
+    user: User,
+    file: Express.Multer.File,
+  ): Promise<Property> {
     const newProperty = new Property();
     newProperty.title = property.title;
     newProperty.description = property.description;
@@ -24,6 +30,13 @@ export class PropertiesService {
     newProperty.no_of_beds = property.no_of_beds;
     newProperty.location = property.location;
     newProperty.user = user;
+
+    if (file) {
+      const fileName = `${Date.now()}-${file.originalname}`;
+      await this.uploadService.uploadFile(fileName, file.buffer);
+      newProperty.imageUrl = `https://mosha-bucket.s3.amazonaws.com/${fileName}`;
+    }
+
     return this.propertyRepository.save(newProperty);
   }
 

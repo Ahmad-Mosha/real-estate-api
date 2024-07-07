@@ -7,7 +7,9 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PropertiesService } from './properties.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
@@ -20,6 +22,8 @@ import { UpdatePropertyDto } from './dto/update-property.dto';
 import { SearchPropertyDto } from './dto/search-property.dto';
 import { Property } from './entity/propety.entity';
 import { FilterPropertyDto } from './dto/filter-property.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { User } from 'src/users/entity/user.entity';
 
 @Controller('properties')
 export class PropertiesController {
@@ -28,8 +32,14 @@ export class PropertiesController {
   @Post('create')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.AGENT)
-  async create(@Body() property: CreatePropertyDto, @GetUser() user: any) {
-    return this.propertyService.create(property, user);
+  @UseInterceptors(FileInterceptor('image'))
+  async create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createPropertyDto: CreatePropertyDto,
+    @GetUser() user: User,
+  ) {
+    console.log(file);
+    return this.propertyService.create(createPropertyDto, user, file);
   }
 
   @Get('search')

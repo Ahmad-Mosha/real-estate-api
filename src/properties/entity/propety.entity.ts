@@ -38,5 +38,5 @@ export class Property {
   no_of_beds: number;
 
   @Column({ nullable: true })
-  image: string;
+  imageUrl: string;
 }

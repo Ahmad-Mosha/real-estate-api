@@ -7,9 +7,17 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminModule } from './admin/admin.module';
 import { S3Module } from './s3/upload.module';
+import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        ttl: seconds(60),
+        limit: 10,
+      },
+    ]),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -23,6 +31,7 @@ import { S3Module } from './s3/upload.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
+
     AuthModule,
     UsersModule,
     PropertiesModule,
@@ -31,6 +40,11 @@ import { S3Module } from './s3/upload.module';
     S3Module,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

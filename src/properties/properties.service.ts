@@ -8,6 +8,7 @@ import { UpdatePropertyDto } from './dto/update-property.dto';
 import { SearchPropertyDto } from './dto/search-property.dto';
 import { FilterPropertyDto } from './dto/filter-property.dto';
 import { S3Service } from 'src/s3/upload.service';
+import { GetPropertiesDto } from './dto/pagination-property.dto';
 
 @Injectable()
 export class PropertiesService {
@@ -40,8 +41,20 @@ export class PropertiesService {
     return this.propertyRepository.save(newProperty);
   }
 
-  async findAll(): Promise<Property[]> {
-    return this.propertyRepository.find();
+  async findAll(getPropertiesDto: GetPropertiesDto): Promise<any> {
+    const { page, limit } = getPropertiesDto;
+    const [result, total] = await this.propertyRepository.findAndCount({
+      take: limit,
+      skip: limit * (page - 1),
+      // Add any other conditions or relations here
+    });
+
+    return {
+      data: result,
+      count: total,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<Property> {

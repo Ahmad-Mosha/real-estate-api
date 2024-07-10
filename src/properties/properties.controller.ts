@@ -27,6 +27,7 @@ import { Property } from './entity/propety.entity';
 import { FilterPropertyDto } from './dto/filter-property.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { User } from 'src/users/entity/user.entity';
+import { GetPropertiesDto } from './dto/pagination-property.dto';
 
 @Controller('properties')
 export class PropertiesController {
@@ -71,8 +72,8 @@ export class PropertiesController {
 
   @Get('all')
   @UseGuards(JwtAuthGuard)
-  async findAll() {
-    return this.propertyService.findAll();
+  async findAll(@Query() getPropertiesDto: GetPropertiesDto) {
+    return this.propertyService.findAll(getPropertiesDto);
   }
 
   @Get(':id')

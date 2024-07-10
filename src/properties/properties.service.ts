@@ -7,15 +7,22 @@ import { User } from 'src/users/entity/user.entity';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { SearchPropertyDto } from './dto/search-property.dto';
 import { FilterPropertyDto } from './dto/filter-property.dto';
+import { S3Service } from 'src/s3/upload.service';
+import { GetPropertiesDto } from './dto/pagination-property.dto';
 
 @Injectable()
 export class PropertiesService {
   constructor(
     @InjectRepository(Property)
     private readonly propertyRepository: Repository<Property>,
+    private s3Service: S3Service,
   ) {}
 
-  async create(property: CreatePropertyDto, user: User): Promise<Property> {
+  async create(
+    property: CreatePropertyDto,
+    user: User,
+    file: Express.Multer.File,
+  ): Promise<Property> {
     const newProperty = new Property();
     newProperty.title = property.title;
     newProperty.description = property.description;
@@ -24,11 +31,30 @@ export class PropertiesService {
     newProperty.no_of_beds = property.no_of_beds;
     newProperty.location = property.location;
     newProperty.user = user;
+
+    if (file) {
+      const fileName = `${Date.now()}-${file.originalname}`;
+      await this.s3Service.uploadFile(fileName, file.buffer);
+      newProperty.imageUrl = `https://mosha-bucket.s3.amazonaws.com/${fileName}`;
+    }
+
     return this.propertyRepository.save(newProperty);
   }
 
-  async findAll(): Promise<Property[]> {
-    return this.propertyRepository.find();
+  async findAll(getPropertiesDto: GetPropertiesDto): Promise<any> {
+    const { page, limit } = getPropertiesDto;
+    const [result, total] = await this.propertyRepository.findAndCount({
+      take: limit,
+      skip: limit * (page - 1),
+      // Add any other conditions or relations here
+    });
+
+    return {
+      data: result,
+      count: total,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<Property> {
@@ -39,7 +65,13 @@ export class PropertiesService {
     return this.propertyRepository.find({ where: { user: { id: user.id } } });
   }
 
-  async update(id: string, property: UpdatePropertyDto, user: User) {
+  // implement the update method with image upload
+  async update(
+    id: string,
+    updatePropertyDto: UpdatePropertyDto,
+    user: User,
+    file: Express.Multer.File,
+  ): Promise<Property> {
     const propertyToUpdate = await this.propertyRepository.findOne({
       where: { id, user: { id: user.id } },
     });
@@ -48,7 +80,20 @@ export class PropertiesService {
       throw new NotFoundException('Property not found');
     }
 
-    return this.propertyRepository.save({ ...propertyToUpdate, ...property });
+    propertyToUpdate.title = updatePropertyDto.title;
+    propertyToUpdate.description = updatePropertyDto.description;
+    propertyToUpdate.price = updatePropertyDto.price;
+    propertyToUpdate.no_of_baths = updatePropertyDto.no_of_baths;
+    propertyToUpdate.no_of_beds = updatePropertyDto.no_of_beds;
+    propertyToUpdate.location = updatePropertyDto.location;
+
+    if (file) {
+      const fileName = `${Date.now()}-${file.originalname}`;
+      await this.s3Service.uploadFile(fileName, file.buffer);
+      propertyToUpdate.imageUrl = `https://mosha-bucket.s3.amazonaws.com/${fileName}`;
+    }
+
+    return this.propertyRepository.save(propertyToUpdate);
   }
 
   async delete(id: string, user: User) {

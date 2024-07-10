@@ -6,6 +6,7 @@ import { FavoritesModule } from './favorites/favorites.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminModule } from './admin/admin.module';
+import { S3Module } from './s3/upload.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AdminModule } from './admin/admin.module';
     PropertiesModule,
     FavoritesModule,
     AdminModule,
+    S3Module,
   ],
   controllers: [],
   providers: [],

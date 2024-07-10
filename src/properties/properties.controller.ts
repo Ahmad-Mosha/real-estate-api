@@ -2,12 +2,17 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PropertiesService } from './properties.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
@@ -20,6 +25,9 @@ import { UpdatePropertyDto } from './dto/update-property.dto';
 import { SearchPropertyDto } from './dto/search-property.dto';
 import { Property } from './entity/propety.entity';
 import { FilterPropertyDto } from './dto/filter-property.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { User } from 'src/users/entity/user.entity';
+import { GetPropertiesDto } from './dto/pagination-property.dto';
 
 @Controller('properties')
 export class PropertiesController {
@@ -28,8 +36,23 @@ export class PropertiesController {
   @Post('create')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.AGENT)
-  async create(@Body() property: CreatePropertyDto, @GetUser() user: any) {
-    return this.propertyService.create(property, user);
+  @UseInterceptors(FileInterceptor('image'))
+  async create(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 2 }),
+          new FileTypeValidator({
+            fileType: /image\/(png|jpeg|jpg)/,
+          }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+    @Body() createPropertyDto: CreatePropertyDto,
+    @GetUser() user: User,
+  ) {
+    return this.propertyService.create(createPropertyDto, user, file);
   }
 
   @Get('search')
@@ -49,8 +72,8 @@ export class PropertiesController {
 
   @Get('all')
   @UseGuards(JwtAuthGuard)
-  async findAll() {
-    return this.propertyService.findAll();
+  async findAll(@Query() getPropertiesDto: GetPropertiesDto) {
+    return this.propertyService.findAll(getPropertiesDto);
   }
 
   @Get(':id')
@@ -69,12 +92,24 @@ export class PropertiesController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.AGENT)
+  @UseInterceptors(FileInterceptor('image'))
   async update(
     @Param('id') id: string,
-    @Body() property: UpdatePropertyDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 2 }),
+          new FileTypeValidator({
+            fileType: /image\/(png|jpeg|jpg)/,
+          }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+    @Body() updatePropertyDto: UpdatePropertyDto,
     @GetUser() user: any,
   ) {
-    return this.propertyService.update(id, property, user);
+    return this.propertyService.update(id, updatePropertyDto, user, file);
   }
 
   @Delete(':id')

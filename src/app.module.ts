@@ -7,9 +7,8 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminModule } from './admin/admin.module';
 import { S3Module } from './s3/upload.module';
-import { seconds, ThrottlerModule } from '@nestjs/throttler';
+import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { CustomThrottlerGuard } from './utils/custom-thorttler.guard';
 
 @Module({
   imports: [
@@ -44,7 +43,7 @@ import { CustomThrottlerGuard } from './utils/custom-thorttler.guard';
   providers: [
     {
       provide: APP_GUARD,
-      useClass: CustomThrottlerGuard,
+      useClass: ThrottlerGuard,
     },
   ],
 })

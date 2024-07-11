@@ -9,6 +9,7 @@ import { AdminModule } from './admin/admin.module';
 import { S3Module } from './s3/upload.module';
 import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { APP_GUARD } from '@nestjs/core';
     FavoritesModule,
     AdminModule,
     S3Module,
+    RedisModule,
   ],
   controllers: [],
   providers: [

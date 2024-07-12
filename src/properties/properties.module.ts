@@ -4,7 +4,7 @@ import { PropertiesController } from './properties.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Property } from './entity/propety.entity';
 import { UsersModule } from 'src/users/users.module';
-import { S3Module } from 'src/s3/upload.module';
+import { S3Module } from 'src/s3/s3.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Property]), UsersModule, S3Module],

@@ -7,7 +7,7 @@ import { User } from 'src/users/entity/user.entity';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { SearchPropertyDto } from './dto/search-property.dto';
 import { FilterPropertyDto } from './dto/filter-property.dto';
-import { S3Service } from 'src/s3/upload.service';
+import { S3Service } from 'src/s3/s3.service';
 import { GetPropertiesDto } from './dto/pagination-property.dto';
 
 @Injectable()

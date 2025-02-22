@@ -22,9 +22,30 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+# Real Estate API
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+A RESTful API built with NestJS for managing real estate properties, users, and favorites. The API includes authentication, role-based access control, and file upload capabilities.
+
+## Features
+
+- User authentication with JWT
+- Role-based access control (Admin, Agent, Regular User)
+- Property management (CRUD operations)
+- Favorites system
+- Image upload with S3 integration
+- Rate limiting
+- PostgreSQL database with TypeORM
+- Redis integration
+- Docker support
+
+## Prerequisites
+
+- Node.js (>= 14.x)
+- Yarn or npm
+- PostgreSQL
+- Redis
+- AWS S3 Account (for image upload)
+- Docker (optional)
 
 ## Installation
 
@@ -32,7 +53,24 @@
 $ yarn install
 ```
 
-## Running the app
+## Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```
+POSTGRES_HOST=your_postgres_host
+POSTGRES_PORT=5432
+POSTGRES_USER=your_postgres_user
+POSTGRES_PASSWORD=your_postgres_password
+POSTGRES_DB=your_database_name
+
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+AWS_REGION=your_aws_region
+AWS_BUCKET_NAME=your_s3_bucket_name
+```
+
+## Running the App
 
 ```bash
 # development
@@ -45,7 +83,44 @@ $ yarn run start:dev
 $ yarn run start:prod
 ```
 
-## Test
+## Docker Setup
+
+```bash
+# Start all services
+$ docker-compose up -d
+```
+
+## API Endpoints
+
+### Authentication
+
+- `POST /auth/signup` - Register a new user
+- `POST /auth/login` - User login
+- `GET /auth/profile` - Get user profile (requires authentication)
+
+### Properties
+
+- `POST /properties/create` - Create a new property (Agent role required)
+- `GET /properties/all` - Get all properties (requires authentication)
+- `GET /properties/:id` - Get property by ID (requires authentication)
+- `GET /properties/search` - Search properties
+- `GET /properties/filter` - Filter properties
+- `GET /properties/user/properties` - Get user's properties (Agent role required)
+- `PATCH /properties/:id` - Update property (Agent role required)
+- `DELETE /properties/:id` - Delete property (Agent role required)
+
+### Favorites
+
+- `POST /favorites/create/:propertyId` - Add property to favorites (requires authentication)
+- `GET /favorites/all` - Get all favorites (requires authentication)
+- `GET /favorites/:id` - Get favorite by ID (requires authentication)
+- `DELETE /favorites/delete/:id` - Remove property from favorites (requires authentication)
+
+### Admin
+
+- `GET /admin/users` - Get all users (Admin role required)
+
+## Running Tests
 
 ```bash
 # unit tests
@@ -58,16 +133,52 @@ $ yarn run test:e2e
 $ yarn run test:cov
 ```
 
-## Support
+## Security Features
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- JWT Authentication
+- Role-based access control
+- Rate limiting
+- File validation for uploads
+- Request validation using DTOs
+- Secure password handling
 
-## Stay in touch
+## Technology Stack
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- NestJS
+- TypeScript
+- PostgreSQL
+- TypeORM
+- Redis
+- AWS S3
+- Passport.js
+- JWT
+- Docker
+- Jest
+
+## Project Structure
+
+```
+src/
+├── admin/         # Admin module for management operations
+├── auth/          # Authentication and authorization
+├── common/        # Shared decorators, enums, and utilities
+├── config/        # Configuration files
+├── favorites/     # Favorites management
+├── properties/    # Property management
+├── redis/         # Redis integration
+├── s3/           # AWS S3 integration
+├── users/         # User management
+└── utils/         # Utility functions and guards
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+This project is licensed under the MIT License.

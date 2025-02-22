@@ -12,6 +12,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { RedisModule } from './redis/redis.module';
 import { databaseConfig } from './config/database.config';
 
+console.log('databaseConfig', databaseConfig);
+
 @Module({
   imports: [
     ThrottlerModule.forRoot([
@@ -22,9 +24,17 @@ import { databaseConfig } from './config/database.config';
     ]),
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '.env',
     }),
-    TypeOrmModule.forRootAsync({
-      useFactory: databaseConfig,
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.POSTGRES_HOST,
+      port: parseInt(process.env.POSTGRES_PORT, 10),
+      username: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DB,
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true,
     }),
 
     AuthModule,
